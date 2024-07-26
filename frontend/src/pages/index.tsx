@@ -2,34 +2,33 @@ import Image from "next/image";
 import Homebanner from "/public/img/home-banner.svg";
 import PlayerXImg from "/public/img/icon-player-x.svg";
 import PlayerOImg from "/public/img/icon-player-o.svg";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-
-export interface UserSettingsProps {
-  username: string;
-  player: "x" | "o";
-}
+import { UserSettingsProps } from "@/types/globalTypes";
 
 export default function Home() {
   const router = useRouter()
 
   const [userSettings, setUserSettings] = useState<Partial<UserSettingsProps>>({
     username: "",
-    player: undefined,
+    player: "x",
   });
+
+  // useEffect(() => {
+  //   console.log(userSettings)
+  // }, [userSettings])
 
   const [statusButtonSearching, setStatusButtonSearching] = useState(false)
 
   function matchFinder(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatusButtonSearching(true)
-    
 
     try {
       //Encontrar partida aqui
   
       //Id da partida encontrado
-      const matchid = "389jdslkj890rf34"
+      const matchid = "39UA2"
   
       setTimeout(() => { // Simular tempo de conneção
         router.push(`game/${matchid}`)
@@ -63,19 +62,25 @@ export default function Home() {
             placeholder="INFORME UM NOME"
             className="bg-gray-1 w-full h-[61px] rounded-md p-[10px] text-black  outline-none"
             required
+            onChange={(e) => setUserSettings((p) => {
+              return {...p, username: e.target.value}
+            })}
           />
           <div className="bg-gray-1 w-full h-[109px] rounded-md flex p-[12px]">
             <div className="flex-1">
               <input
                 type="radio"
                 name="option"
-                id="1"
-                value="1"
+                id="x"
+                value="x"
                 className="peer hidden"
-                checked
+                checked={userSettings.player == "x"}
+                onClick={() => setUserSettings((p) => {
+                  return {...p, player: "x"}
+                })}
               />
               <label
-                htmlFor="1"
+                htmlFor="x"
                 className="h-full cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-white peer-checked:font-bold flex justify-center"
               >
                 <Image
@@ -90,17 +95,21 @@ export default function Home() {
               <input
                 type="radio"
                 name="option"
-                id="2"
-                value="2"
+                id="o"
+                value="o"
                 className="peer hidden"
+                checked={userSettings.player == "o"}
+                onClick={() => setUserSettings((p) => {
+                  return {...p, player: "o"}
+                })}
               />
               <label
-                htmlFor="2"
+                htmlFor="o"
                 className="h-full cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-white peer-checked:font-bold flex justify-center"
               >
                 <Image
                   src={PlayerOImg}
-                  alt="X"
+                  alt="O"
                   className="pointer-events-none"
                 />
               </label>
