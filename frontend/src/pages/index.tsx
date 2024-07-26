@@ -5,7 +5,7 @@ import PlayerOImg from "/public/img/icon-player-o.svg";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/router";
 
-interface UserSettingsProps {
+export interface UserSettingsProps {
   username: string;
   player: "x" | "o";
 }
