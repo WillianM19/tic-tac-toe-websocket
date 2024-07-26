@@ -1,6 +1,5 @@
-import { useRouter } from "next/router";
 import Table from "@/components/Table";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { boardType, gameDataProps } from "@/types/globalTypes";
 import UserInfo from "@/components/UserInfo";
 import HomeBtn from "@/components/HomeBtn";
@@ -28,15 +27,25 @@ export default function game() {
     }
   })
 
-  useEffect(() => {
-    //Atualizar estados aqui
-  }, [])
+  //Atualizar board
+  function Update(row: number, column: number) {
+    //Lógica temporária apenas para testes
+    setCurrentBoard((p) => {
+      const newBoard = p.map((row) => [...row]) as boardType;
+      newBoard[row][column] = "x";
+      return newBoard;
+    });
+  }
+
+  // useEffect(() => {
+  //   console.table(currentBoard)
+  // }, [currentBoard])
 
   return (
     <main className="h-[100vh] max-w-[1980px] m-auto relative flex justify-evenly items-center">
       <HomeBtn/>
       <UserInfo {...gameData.playerX} type="x" />
-      <Table renderBy={currentBoard}/>
+      <Table onCellClick={(row, column) => Update(row, column)} renderBy={currentBoard}/>
       <UserInfo {...gameData.playerO} type="o" />
     </main>
   );

@@ -5,13 +5,13 @@ import { tableElement } from "@/types/globalTypes";
 
 interface CellProps {
   marked?: tableElement;
-  onClick?: () => void;
+  onClick: () => void;
 }
 
 export default function Cell({ marked, onClick }: CellProps) {
   return (
     <div
-      onClick={onClick}
+      onClick={() => onClick && onClick()}
       className="bg-gray-1 rounded-md flex justify-center items-center cursor-pointer hover:scale-[1.04] transition-all"
     >
       {marked && (
