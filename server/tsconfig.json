@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",                      // Define o nível de compatibilidade do JavaScript
+    "module": "commonjs",                    // Define o sistema de módulos
+    "outDir": "./build",                     // Pasta onde os arquivos compilados serão colocados
+    "rootDir": "./src",                      // Diretório raiz dos arquivos TypeScript
+    "esModuleInterop": true,                 // Permite a interoperabilidade com módulos CommonJS
+    "skipLibCheck": true,                    // Ignora checagem dos arquivos de declaração
+    "strict": true,                          // Habilita todas as opções de checagem estrita
+    "resolveJsonModule": true                // Permite importação de arquivos JSON
+  },
+  "include": ["src/**/*"],                   // Diretórios e arquivos a serem incluídos na compilação
+  "exclude": ["node_modules", "build"]       // Diretórios e arquivos a serem excluídos da compilação
+}
