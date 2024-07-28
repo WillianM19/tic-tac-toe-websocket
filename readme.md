@@ -32,7 +32,11 @@ yarn
 2. Rode o projeto
 
 ```bash
-node server.js
+npm run dev
+
+#or
+
+yarn dev
 ```
 
 ### Configuração do Frontend
