@@ -5,6 +5,9 @@ import PlayerOImg from "/public/img/icon-player-o.svg";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { UserSettingsProps } from "@/types/globalTypes";
+import io from "socket.io-client";
+
+export const socket = io('http://localhost:3333');
 
 export default function Home() {
   const router = useRouter()
@@ -14,29 +17,35 @@ export default function Home() {
     player: "x",
   });
 
-  // useEffect(() => {
-  //   console.log(userSettings)
-  // }, [userSettings])
-
   const [statusButtonSearching, setStatusButtonSearching] = useState(false)
 
+
+  useEffect(() => {
+    socket.on('roomId', (response) => {
+      router.push(`/game/${response}`)
+    })
+    return
+  }, []) 
+  
   function matchFinder(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatusButtonSearching(true)
 
     try {
       //Encontrar partida aqui
-  
+      let temp
       //Id da partida encontrado
-      const matchid = "39UA2"
-  
-      setTimeout(() => { // Simular tempo de conneção
-        router.push(`game/${matchid}`)
-      }, 1500)
 
+      const userdata = {
+        name: userSettings.username,
+        piece: userSettings.player?.toUpperCase(),
+      }
+
+      const res = socket.emit('joinRoom', userdata);
     } catch(_) {
       setStatusButtonSearching(false)
       alert("Erro na conexão")
+      console.log(_)
     }
   }
 

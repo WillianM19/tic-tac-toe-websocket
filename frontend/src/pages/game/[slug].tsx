@@ -1,12 +1,14 @@
 import Table from "@/components/Table";
-import { useState } from "react";
+import { useState, useEffect  } from "react";
 import { boardType, gameDataProps } from "@/types/globalTypes";
 import UserInfo from "@/components/UserInfo";
 import HomeBtn from "@/components/HomeBtn";
-
+import { Socket } from "socket.io-client";
+import { useRouter } from "next/router";
+import { socket } from "..";
 
 export default function game() {
-  // const router = useRouter();
+  const router = useRouter();
 
   //Estado do board
   const [currentBoard, setCurrentBoard] = useState<boardType>([
@@ -27,6 +29,7 @@ export default function game() {
     }
   })
 
+
   //Atualizar board
   function Update(row: number, column: number) {
     //Lógica temporária apenas para testes
@@ -37,15 +40,21 @@ export default function game() {
     });
   }
 
-  // useEffect(() => {
-  //   console.table(currentBoard)
-  // }, [currentBoard])
+  useEffect(() => {
+    socket.on("roomUpdated", (response) => {
+      console.log("Resposta:", response);
+    })
+
+    const id = window.location.href.match(/\/game\/(.+)/)?.[1];
+
+    socket.emit("getRoomState", {roomId: id})
+  }, [])
 
   return (
     <main className="h-[100vh] max-w-[1980px] m-auto relative flex justify-evenly items-center">
-      <HomeBtn/>
+      <HomeBtn />
       <UserInfo {...gameData.playerX} type="x" />
-      <Table onCellClick={(row, column) => Update(row, column)} renderBy={currentBoard}/>
+      <Table onCellClick={(row, column) => Update(row, column)} renderBy={currentBoard} />
       <UserInfo {...gameData.playerO} type="o" />
     </main>
   );
