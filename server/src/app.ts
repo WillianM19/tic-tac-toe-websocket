@@ -163,7 +163,9 @@ class App {
         }
     
         socket.join(room.id.toString());
-        this.socketIo.to(room.id.toString()).emit('roomId', room.id);
+        if (room.game.players.length === 2) {
+            this.socketIo.to(room.id.toString()).emit('roomId', room.id);
+        }
     }
 
     private getRoomState(socket: any, roomId: number): void {
