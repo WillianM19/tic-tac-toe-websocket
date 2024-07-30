@@ -1,12 +1,14 @@
 import express from 'express';
 import { Server ,createServer } from 'http';
 import { Server as Io } from 'socket.io';
+
 interface Player {
     id: string;
     name: string;
     piece: 'X' | 'O';
     wins: number;
 }
+
 interface board {
     board: ('X' | 'O' | null)[][];
     players: Player[];
@@ -52,7 +54,6 @@ class App {
             });
 
             socket.on('disconnect', () => {
-                console.log('Usuario desconectado!')
                 this.handleDisconnect(socket);
             })
         });
@@ -91,6 +92,7 @@ class App {
         if (this.checkWin(room.game.board, player.piece)) {
             player.wins++;
             this.socketIo.to(room.id.toString()).emit('gameWon', player);
+            this.clearBoard(socket, roomId);
         } else {
             room.game.currentPlayer = room.game.players.find(p => p.id !== player.id)!;
         }
@@ -196,18 +198,16 @@ class App {
     }
 
     private handleDisconnect(socket: any): void {
-        this.rooms.forEach(room => {
-            const playerIndex = room.game.players.findIndex(p => p.id === socket.id);
-            if (playerIndex !== -1) {
-                room.game.players.splice(playerIndex, 1);
-    
-                if (room.game.players.length > 0) {
-                    room.game.currentPlayer = room.game.players[0];
-                }
-    
-                this.socketIo.to(room.id.toString()).emit('roomUpdated', room);
-            }
-        });
+        const roomIndex = this.rooms.findIndex(room => room.game.players.some(player => player.id === socket.id));
+        if (roomIndex !== -1) {
+            const room = this.rooms[roomIndex];
+            
+            this.socketIo.to(room.id.toString()).emit('roomClosed', `Algum usuario foi desconectado`);
+            
+            this.rooms.splice(roomIndex, 1);
+            
+            this.socketIo.in(room.id.toString()).socketsLeave(room.id.toString());
+        }
     }
 }
 
