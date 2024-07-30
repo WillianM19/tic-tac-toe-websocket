@@ -16,7 +16,7 @@ export default function Cell({ marked, onClick }: CellProps) {
     >
       {marked && (
         <Image
-          src={marked == "x" ? PlayerXImg : PlayerOImg}
+          src={marked == "X" ? PlayerXImg : PlayerOImg}
           alt="player cell"
           width={80}
         />
