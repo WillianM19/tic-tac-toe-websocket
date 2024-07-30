@@ -61,7 +61,7 @@ class App {
 
     private movement(socket: any, roomId: number, coordinate: { x: number, y: number }): void {
         const room = this.rooms.find(r => r.id === roomId);
-        console.log("Sala: ", room);
+
         if (!room) {
             console.error('Sala não encontrada:', roomId);
             socket.emit('error', 'Sala não encontrada.');
@@ -89,10 +89,15 @@ class App {
 
         room.game.board[coordinate.x][coordinate.y] = player.piece;
 
-        if (this.checkWin(room.game.board, player.piece)) {
+        if (this.checkDraw(room.game.board)) {
+            this.socketIo.to(room.id.toString()).emit('gameDraw');
+            this.clearBoard(socket, roomId);
+            return;
+        } else if (this.checkWin(room.game.board, player.piece)) {
             player.wins++;
             this.socketIo.to(room.id.toString()).emit('gameWon', player);
             this.clearBoard(socket, roomId);
+            return;
         } else {
             room.game.currentPlayer = room.game.players.find(p => p.id !== player.id)!;
         }
@@ -122,6 +127,10 @@ class App {
         }
 
         return false;
+    }
+
+    private checkDraw(board: ('X' | 'O' | null)[][]): boolean {
+        return board.flat().every(cell => cell !== null);
     }
 
     private room(socket: any, data: { name: string; piece: string }): void {
