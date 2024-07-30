@@ -22,7 +22,7 @@ export default function Home() {
 
   useEffect(() => {
     socket.on('roomId', (response) => {
-      router.push(`/game/${response}`)
+        router.push(`/game/${response}`)
     })
     return
   }, []) 
@@ -32,16 +32,12 @@ export default function Home() {
     setStatusButtonSearching(true)
 
     try {
-      //Encontrar partida aqui
-      let temp
-      //Id da partida encontrado
-
       const userdata = {
         name: userSettings.username,
         piece: userSettings.player?.toUpperCase(),
       }
 
-      const res = socket.emit('joinRoom', userdata);
+      socket.emit('joinRoom', userdata);
     } catch(_) {
       setStatusButtonSearching(false)
       alert("Erro na conexão")

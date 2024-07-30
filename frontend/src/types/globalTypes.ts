@@ -3,7 +3,7 @@ export interface UserSettingsProps {
   player: "x" | "o";
 }
 
-export type tableElement = "x" | "o" | undefined;
+export type tableElement = "X" | "O" | null;
 
 export type boardType = [
   [tableElement, tableElement, tableElement],

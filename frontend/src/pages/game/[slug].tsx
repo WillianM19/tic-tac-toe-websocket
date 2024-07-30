@@ -1,21 +1,19 @@
 import Table from "@/components/Table";
-import { useState, useEffect  } from "react";
+import { useState, useEffect, useRef } from "react";
 import { boardType, gameDataProps } from "@/types/globalTypes";
 import UserInfo from "@/components/UserInfo";
 import HomeBtn from "@/components/HomeBtn";
-import { Socket } from "socket.io-client";
-import { useRouter } from "next/router";
 import { socket } from "..";
 
 export default function game() {
-  const router = useRouter();
+  const roomId = useRef<any>(null);
 
   //Estado do board
   const [currentBoard, setCurrentBoard] = useState<boardType>([
-    [undefined, undefined, undefined],
-    [undefined, undefined, undefined],
-    [undefined, undefined, undefined]
-  ])
+    [null, null, null],
+    [null, null, null],
+    [null, null, null],
+  ]);
 
   //Estado de usuários
   const [gameData, setGameData] = useState<gameDataProps>({
@@ -26,36 +24,95 @@ export default function game() {
     playerO: {
       username: "Jogador 2",
       points: 0,
-    }
-  })
+    },
+  });
 
+  const [currentPlayer, setCurrentPlayer] = useState<string>("")
 
   //Atualizar board
   function Update(row: number, column: number) {
-    //Lógica temporária apenas para testes
-    setCurrentBoard((p) => {
-      const newBoard = p.map((row) => [...row]) as boardType;
-      newBoard[row][column] = "x";
-      return newBoard;
+    socket.emit("movement", {
+      roomId: roomId.current,
+      coordinate: { x: row, y: column },
     });
   }
 
   useEffect(() => {
-    socket.on("roomUpdated", (response) => {
-      console.log("Resposta:", response);
-    })
 
-    const id = window.location.href.match(/\/game\/(.+)/)?.[1];
+    const handleRoomUpdated = (response: any) => {
+      console.log("entrou", response);
+      if (response) {
+        setCurrentBoard(response.game.board);
+        console.log(response)
 
-    socket.emit("getRoomState", {roomId: id})
-  }, [])
+        const playerX = response.game.players.find((player: { piece: string; }) => player.piece === "X");
+        const playerO = response.game.players.find((player: { piece: string; }) => player.piece === "O");       
+        console.log(playerX)
+        const players = {
+          playerX: {
+            username: playerX.name ? playerX.name : "Desconectado",
+            points: playerX.wins,
+          },
+          playerO: {
+            username: playerO.name ? playerO.name : "Desconectado",
+            points: playerO.wins,
+          },
+        }
 
+        setCurrentPlayer(response.game.currentPlayer.name)
+
+        setGameData(players);
+      }
+    };
+
+    const handleGameWon = (response: any) => {
+      alert(`O jogador ${response.name} ganhou!`)
+    };
+  
+    socket.on("roomUpdated", handleRoomUpdated);
+
+    socket.on("gameWon", handleGameWon);
+
+    socket.emit("clearBoard", { roomId: roomId})
+    setCurrentBoard([
+      [null, null, null],
+      [null, null, null],
+      [null, null, null],
+    ])
+  
+    const roomId_temp = Number(window.location.href.match(/\/game\/(.+)/)?.[1]);
+    roomId.current = roomId_temp;
+  
+    socket.emit("getRoomState", { roomId: roomId_temp });
+
+    return () => {
+      socket.off("roomUpdated", handleRoomUpdated);
+      socket.off("gameWon", handleGameWon);
+    };
+  }, []);
+  
   return (
-    <main className="h-[100vh] max-w-[1980px] m-auto relative flex justify-evenly items-center">
-      <HomeBtn />
-      <UserInfo {...gameData.playerX} type="x" />
-      <Table onCellClick={(row, column) => Update(row, column)} renderBy={currentBoard} />
-      <UserInfo {...gameData.playerO} type="o" />
-    </main>
+    <>
+      {roomId ? (
+        <main className="h-[100vh] max-w-[1980px] m-auto relative flex justify-evenly items-center">
+          <HomeBtn />
+          <div className={currentPlayer == gameData.playerX.username ? "animate-pulse" : ""}>
+            <UserInfo {...gameData.playerX} type="x" />
+          </div>
+          <div>
+            <p className="text-white mb-[8px] text-[18px] text-center">Vez de: {currentPlayer}</p>
+            <Table
+              onCellClick={(row, column) => Update(row, column)}
+              renderBy={currentBoard}
+            />
+          </div>
+          <div className={currentPlayer == gameData.playerO.username ? "animate-pulse" : ""}>
+            <UserInfo {...gameData.playerO} type="o" />
+          </div>
+        </main>
+      ) : (
+        <></>
+      )}
+    </>
   );
 }
