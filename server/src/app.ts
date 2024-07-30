@@ -37,6 +37,8 @@ class App {
 
         this.socketIo.on('connection', (socket) => {
 
+            console.log(socket.id);
+
             socket.on('joinRoom', (data: {name: string, piece: string}) => {
                 this.room(socket, data);
             });
