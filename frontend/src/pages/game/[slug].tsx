@@ -102,7 +102,7 @@ export default function game() {
     return () => {
       socket.off("roomUpdated", handleRoomUpdated);
       socket.off("gameWon", handleGameWon);
-      socket.off("gameDraw", handleGameWon);
+      socket.off("gameDraw", handleGameDraw);
     };
   }, []);
 
