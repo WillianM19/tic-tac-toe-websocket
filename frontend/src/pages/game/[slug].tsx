@@ -1,12 +1,12 @@
 import Table from "@/components/Table";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, SetStateAction } from "react";
 import { boardType, gameDataProps } from "@/types/globalTypes";
 import UserInfo from "@/components/UserInfo";
 import HomeBtn from "@/components/HomeBtn";
 import { socket } from "..";
 
 export default function game() {
-  const roomId = useRef<any>(null);
+  const roomId = useRef<number | null>(null);
 
   //Estado do board
   const [currentBoard, setCurrentBoard] = useState<boardType>([
@@ -27,7 +27,7 @@ export default function game() {
     },
   });
 
-  const [currentPlayer, setCurrentPlayer] = useState<string>("")
+  const [currentPlayer, setCurrentPlayer] = useState<string>("");
 
   //Atualizar board
   function Update(row: number, column: number) {
@@ -38,16 +38,25 @@ export default function game() {
   }
 
   useEffect(() => {
-
-    const handleRoomUpdated = (response: any) => {
+    const handleRoomUpdated = (response: {
+      game: {
+        board: SetStateAction<boardType>;
+        players: any[];
+        currentPlayer: { name: SetStateAction<string> };
+      };
+    }) => {
       console.log("entrou", response);
       if (response) {
         setCurrentBoard(response.game.board);
-        console.log(response)
+        console.log(response);
 
-        const playerX = response.game.players.find((player: { piece: string; }) => player.piece === "X");
-        const playerO = response.game.players.find((player: { piece: string; }) => player.piece === "O");       
-        console.log(playerX)
+        const playerX = response.game.players.find(
+          (player: { piece: string }) => player.piece === "X"
+        );
+        const playerO = response.game.players.find(
+          (player: { piece: string }) => player.piece === "O"
+        );
+        console.log(playerX);
         const players = {
           playerX: {
             username: playerX.name ? playerX.name : "Desconectado",
@@ -57,37 +66,37 @@ export default function game() {
             username: playerO.name ? playerO.name : "Desconectado",
             points: playerO.wins,
           },
-        }
+        };
 
-        setCurrentPlayer(response.game.currentPlayer.name)
+        setCurrentPlayer(response.game.currentPlayer.name);
 
         setGameData(players);
       }
     };
 
-    const handleGameWon = (response: any) => {
-      alert(`O jogador ${response.name} ganhou!`)
+    const handleGameWon = (response: { name: string }) => {
+      alert(`O jogador ${response.name} ganhou!`);
     };
 
-    const handleGameDraw = (response: any) => {
-      alert(`O Jogo empatou!`)
+    const handleGameDraw = () => {
+      alert(`O Jogo empatou!`);
     };
-  
+
     socket.on("roomUpdated", handleRoomUpdated);
 
     socket.on("gameWon", handleGameWon);
     socket.on("gameDraw", handleGameDraw);
 
-    socket.emit("clearBoard", { roomId: roomId})
+    socket.emit("clearBoard", { roomId: roomId });
     setCurrentBoard([
       [null, null, null],
       [null, null, null],
       [null, null, null],
-    ])
-  
+    ]);
+
     const roomId_temp = Number(window.location.href.match(/\/game\/(.+)/)?.[1]);
     roomId.current = roomId_temp;
-  
+
     socket.emit("getRoomState", { roomId: roomId_temp });
 
     return () => {
@@ -96,23 +105,33 @@ export default function game() {
       socket.off("gameDraw", handleGameWon);
     };
   }, []);
-  
+
   return (
     <>
       {roomId ? (
         <main className="h-[100vh] max-w-[1980px] m-auto relative flex justify-evenly items-center">
           <HomeBtn />
-          <div className={currentPlayer == gameData.playerX.username ? "animate-pulse" : ""}>
+          <div
+            className={
+              currentPlayer == gameData.playerX.username ? "animate-pulse" : ""
+            }
+          >
             <UserInfo {...gameData.playerX} type="x" />
           </div>
           <div>
-            <p className="text-white mb-[8px] text-[18px] text-center">Vez de: {currentPlayer}</p>
+            <p className="text-white mb-[8px] text-[18px] text-center">
+              Vez de: {currentPlayer}
+            </p>
             <Table
               onCellClick={(row, column) => Update(row, column)}
               renderBy={currentBoard}
             />
           </div>
-          <div className={currentPlayer == gameData.playerO.username ? "animate-pulse" : ""}>
+          <div
+            className={
+              currentPlayer == gameData.playerO.username ? "animate-pulse" : ""
+            }
+          >
             <UserInfo {...gameData.playerO} type="o" />
           </div>
         </main>
