@@ -68,10 +68,15 @@ export default function game() {
     const handleGameWon = (response: any) => {
       alert(`O jogador ${response.name} ganhou!`)
     };
+
+    const handleGameDraw = (response: any) => {
+      alert(`O Jogo empatou!`)
+    };
   
     socket.on("roomUpdated", handleRoomUpdated);
 
     socket.on("gameWon", handleGameWon);
+    socket.on("gameDraw", handleGameDraw);
 
     socket.emit("clearBoard", { roomId: roomId})
     setCurrentBoard([
@@ -88,6 +93,7 @@ export default function game() {
     return () => {
       socket.off("roomUpdated", handleRoomUpdated);
       socket.off("gameWon", handleGameWon);
+      socket.off("gameDraw", handleGameWon);
     };
   }, []);
   
