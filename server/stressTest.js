@@ -17,19 +17,9 @@ function createClient(clientId) {
             piece: clientId % 2 === 0 ? 'X' : 'O'
         });
 
-        // Solicita o estado da sala
-        socket.emit('getRoomState', { roomId: 1 });
-
-        // Realiza um movimento aleatório
-        setTimeout(() => {
-            const x = Math.floor(Math.random() * 3);
-            const y = Math.floor(Math.random() * 3);
-
-            socket.emit('movement', {
-                roomId: 1,
-                coordinate: { x, y }
-            });
-        }, delayBetweenActions);
+    });
+    socket.on('roomId', (room) => {
+        console.log(`Client ${clientId} received Id room`);
     });
 
     socket.on('roomUpdated', (room) => {
