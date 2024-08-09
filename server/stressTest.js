@@ -1,9 +1,9 @@
 const io = require('socket.io-client');
 
 // Configurações do teste
-const numberOfClients = 1000; // Número de clientes a serem simulados
+const numberOfClients = 10000; // Número de clientes a serem simulados
 const serverUrl = 'http://localhost:3333'; // URL do servidor
-const delayBetweenActions = 100; // Atraso entre as ações de cada cliente (em milissegundos)
+const delayBetweenActions = 10; // Atraso entre as ações de cada cliente (em milissegundos)
 
 function createClient(clientId) {
     const socket = io(serverUrl);
