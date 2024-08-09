@@ -41,6 +41,7 @@ class App {
 
             socket.on('joinRoom', (data: {name: string, piece: string}) => {
                 this.room(socket, data);
+                console.log(this.rooms.length)
             });
 
             socket.on('getRoomState', (data: { roomId: number }) => {
@@ -57,6 +58,7 @@ class App {
 
             socket.on('disconnect', () => {
                 this.handleDisconnect(socket);
+                console.log("Disconectou")
             })
         });
     }

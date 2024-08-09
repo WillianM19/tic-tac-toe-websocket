@@ -7,9 +7,12 @@
     "dev": "nodemon --exec ts-node ./src/index.ts "
   },
   "dependencies": {
+    "artillery": "^2.0.19",
+    "artillery-engine-socketio-v3": "^1.2.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
